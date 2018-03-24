@@ -48,7 +48,7 @@ int list_empty(struct list *l) {
   return list_begin(l) == list_end(l);
 }
 
-void push_list(struct list *l, void *item) {
+void append_list(struct list *l, void *item) {
   struct list_node *end = list_end(l);
   struct list_node *new =
     (struct list_node *) malloc(sizeof(struct list_node));
@@ -63,9 +63,10 @@ void push_list(struct list *l, void *item) {
   new->next = end;
 
   new->item = item;
+  l->size++;
 }
 
-void *pop_list(struct list *l) {
+void *remove_list(struct list *l) {
   check_list_not_empty(l);
 
   struct list_node *end = list_end(l);
@@ -76,11 +77,36 @@ void *pop_list(struct list *l) {
 
   void *item = old->item;
   free(old);
+  l->size--;
 
   return item;
 }
 
-void *shift_list(struct list *l) {
+void *tail_list(struct list *l) {
+  check_list_not_empty(l);
+
+  return list_end(l)->prev->item;
+}
+
+void push_list(struct list *l, void *item) {
+  struct list_node *begin = list_begin(l);
+  struct list_node *new =
+    (struct list_node *) malloc(sizeof(struct list_node));
+
+  if (new == NULL) {
+    throw("faild to allocate list node.");
+  }
+
+  new->next = begin->next;
+  begin->next->prev = new;
+  begin->next = new;
+  new->prev = begin;
+
+  new->item = item;
+  l->size++;
+}
+
+void *pop_list(struct list *l) {
   check_list_not_empty(l);
 
   struct list_node *begin = list_begin(l);
@@ -91,24 +117,19 @@ void *shift_list(struct list *l) {
 
   void *item = old->item;
   free(old);
+  l->size--;
 
   return item;
 }
 
-void *get_list(struct list *l, int i) {
-  throw("Unimplemented!");
-
-  return NULL;
-}
-
-void *get_list_fst(struct list *l) {
+void *head_list(struct list *l) {
   check_list_not_empty(l);
 
   return list_begin(l)->next->item;
 }
 
-void *get_list_lst(struct list *l) {
-  check_list_not_empty(l);
+void *index_list(struct list *l, int i) {
+  throw("Unimplemented!");
 
-  return list_end(l)->prev->item;
+  return NULL;
 }
