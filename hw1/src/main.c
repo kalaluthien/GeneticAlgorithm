@@ -2,9 +2,12 @@
 #include <stdlib.h>
 
 #include "common.h"
+#include "timer.h"
 #include "parser.h"
 #include "graph.h"
-#include "timer.h"
+#include "ga.h"
+
+#define NUM_SOLUTIONS 100
 
 static void initialize(int argc, char *argv[]);
 static void run_ga();
@@ -43,9 +46,16 @@ static void initialize(int argc, char *argv[]) {
 }
 
 static void run_ga() {
-  /* Dummy workload */
-  for (int i = 0; i < 100000; i++) {
-    fprintf(out, "This file is not empty.\n");
+  struct sol offspring;
+
+  init_GA(&g, NUM_SOLUTIONS);
+
+  while (repeat_GA()) {
+    crossover_GA(&offspring);
+
+    mutation_GA(&offspring);
+
+    replace_GA(&offspring);
   }
 }
 

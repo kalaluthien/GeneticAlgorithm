@@ -10,7 +10,7 @@ CFLAGS = -g -std=c99 -Wall -I$(INCLUDE_DIR)
 LDFLAGS =
 OPTS = -O2
 
-SRCS = main.c parser.c timer.c graph.c list.c
+SRCS = main.c parser.c graph.c ga.c list.c timer.c
 OBJS = $(SRCS:%.c=%.o)
 
 all: $(OBJS)
