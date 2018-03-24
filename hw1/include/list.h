@@ -2,21 +2,27 @@
 #define __LIST_H_
 
 struct list_node {
-  void *elem;
+  void *item;
   struct list_node *prev;
   struct list_node *next;
 };
 
 struct list {
-  unsigned size;
   struct list_node begin;
   struct list_node end;
 };
 
-#define list_begin(l) (&(l)->begin)
-#define list_end(l) (&(l)->end)
-
 struct list *create_list();
-void insert_list(struct list *l, void *elem);
+void delete_list(struct list *l);
+
+int list_empty(struct list *l);
+
+void push_list(struct list *l, void *item);
+void *pop_list(struct list *l);
+void *shift_list(struct list *l);
+
+void *get_list(struct list *l, int i);
+void *get_list_fst(struct list *l);
+void *get_list_lst(struct list *l);
 
 #endif
