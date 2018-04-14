@@ -6,22 +6,22 @@ SRC_DIR = $(BASE_DIR)/src
 INPUT_DIR = $(BASE_DIR)/data
 OUTPUT_DIR = $(BASE_DIR)/result
 
-PROGRAM = maxcut
-INPUT = $(INPUT_DIR)/input.txt
-OUTPUT = $(OUTPUT_DIR)/output.txt
+PROG = maxcut
+INPUT = $(INPUT_DIR)/$(PROG).in
+OUTPUT = $(OUTPUT_DIR)/$(PROG).out
 
-FLAGS = 'PROGRAM=$(PROGRAM)'
+FLAGS = 'PROG=$(PROG)'
 
-all: $(PROGRAM)
-$(PROGRAM):
+all: $(PROG)
+$(PROG):
 	$(MAKE) $(FLAGS) -C $(SRC_DIR)
 
 .PHONY: test clean
 
-test: $(PROGRAM)
+test: $(PROG)
 	mkdir -p $(OUTPUT_DIR)
-	./$(PROGRAM) $(INPUT) $(OUTPUT)
+	./$(PROG) $(INPUT) $(OUTPUT)
 
 clean:
 	$(MAKE) -C $(SRC_DIR) clean
-	rm -f $(PROGRAM)
+	rm -f $(PROG)

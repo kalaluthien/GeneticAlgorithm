@@ -14,7 +14,7 @@ SRCS = main.c parser.c graph.c ga.c list.c timer.c
 OBJS = $(SRCS:%.c=%.o)
 
 all: $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) -o $(BASE_DIR)/$(PROGRAM)
+	$(CC) $(OBJS) $(LDFLAGS) -o $(BASE_DIR)/$(PROG)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $< -o $@
