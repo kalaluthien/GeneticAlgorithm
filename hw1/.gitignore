@@ -1,4 +1,5 @@
 !.gitignore
 
+maxcut
 data/maxcut.in
 result/*
