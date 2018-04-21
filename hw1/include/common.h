@@ -4,12 +4,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_TIME 120.0
+#define NUM_SOLUTIONS 256
+#define NUM_OFFSPRING 8
 
-#define throw(msg) \
+#define QNUM 8
+#define QVAL (NUM_SOLUTIONS / QNUM)
+
+#define MAX_TIME 150.0
+
+#define throw(cond, msg) \
   do { \
-    printf("[%s:%d] Error: %s\n", __FILE__, __LINE__, (msg)); \
-    exit(EXIT_FAILURE); \
+    if (cond) { \
+      printf("[%s:%d] Exception: %s\n", __FILE__, __LINE__, (msg)); \
+      exit(EXIT_FAILURE); \
+    } \
   } while (0)
 
 #endif

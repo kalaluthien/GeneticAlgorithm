@@ -1,23 +1,22 @@
 # sub-level Makefile
-# fix BASE_DIR
 
-BASE_DIR = ..
-INCLUDE_DIR = $(BASE_DIR)/include
+ROOT_DIR = ..
+INCLUDE_DIR = $(ROOT_DIR)/include
 
 CC = gcc
 
 CFLAGS = -g -std=c99 -Wall -I$(INCLUDE_DIR)
-LDFLAGS =
-OPTS = -O2
+LDFLAGS = -lm
+OPTS = -O3
 
-SRCS = main.c parser.c graph.c ga.c list.c timer.c
+SRCS = main.c parser.c graph.c ga.c timer.c
 OBJS = $(SRCS:%.c=%.o)
 
 all: $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) -o $(BASE_DIR)/$(PROG)
+	$(CC) -o $(ROOT_DIR)/$(PROG) $(OBJS) $(LDFLAGS)
 
-.c.o:
-	$(CC) -c $(CFLAGS) $< -o $@
+%.o: %.c
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 .PHONY: clean
 

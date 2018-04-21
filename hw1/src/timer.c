@@ -11,9 +11,7 @@ struct timer *create_timer() {
   struct timer *timer =
     (struct timer *) malloc(sizeof(struct timer));
 
-  if (timer == NULL) {
-    throw("faild to allocate memory for timer.");
-  }
+  throw(!timer, "faild to allocate memory for timer.");
 
   for (int i = 0; i < NUM_TIMERS; i++) {
     timer->on[i] = 0;

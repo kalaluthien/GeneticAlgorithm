@@ -1,27 +1,25 @@
 # top-level Makefile 
-# fix BASE_DIR
 
-BASE_DIR = .
-SRC_DIR = $(BASE_DIR)/src
-INPUT_DIR = $(BASE_DIR)/data
-OUTPUT_DIR = $(BASE_DIR)/result
+ROOT_DIR = .
+SRC_DIR = $(ROOT_DIR)/src
+INPUT_DIR = $(ROOT_DIR)/data
+OUTPUT_DIR = $(ROOT_DIR)/result
 
 PROG = maxcut
-INPUT = $(INPUT_DIR)/$(PROG).in
-OUTPUT = $(OUTPUT_DIR)/$(PROG).out
+INPUT = $(PROG).in
+OUTPUT = $(PROG).out
 
 FLAGS = 'PROG=$(PROG)'
 
-all: $(PROG)
-$(PROG):
+all:
 	$(MAKE) $(FLAGS) -C $(SRC_DIR)
 
-.PHONY: test clean
+.PHONY: run clean
 
-test: $(PROG)
-	mkdir -p $(OUTPUT_DIR)
+run: all
+	cp -f $(INPUT_DIR)/$(INPUT) $(INPUT)
 	./$(PROG) $(INPUT) $(OUTPUT)
 
 clean:
 	$(MAKE) -C $(SRC_DIR) clean
-	rm -f $(PROG)
+	rm -f $(PROG) $(INPUT) $(OUTPUT)
