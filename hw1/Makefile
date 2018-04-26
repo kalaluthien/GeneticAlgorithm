@@ -2,8 +2,6 @@
 
 ROOT_DIR = .
 SRC_DIR = $(ROOT_DIR)/src
-INPUT_DIR = $(ROOT_DIR)/data
-OUTPUT_DIR = $(ROOT_DIR)/result
 
 PROG = maxcut
 INPUT = $(PROG).in
@@ -17,7 +15,6 @@ all:
 .PHONY: run clean
 
 run: all
-	cp -f $(INPUT_DIR)/$(INPUT) $(INPUT)
 	./$(PROG) $(INPUT) $(OUTPUT)
 
 clean:
