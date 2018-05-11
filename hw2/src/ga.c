@@ -11,6 +11,7 @@ static void normalize_sol(struct sol *gene);
 static void bit_flip(struct sol *gene);
 static int select_GA();
 static int converged(int n, int m);
+static void sol_print(struct sol *sol, int i);
 
 /* global variable */
 extern struct graph g;
@@ -76,7 +77,7 @@ static void randomize_sol(struct sol *gene) {
   }
 }
 
-static void validate_sol(struct sol *gene) {
+static void eval_sol(struct sol *gene) {
   int u, sum = 0;
   int *r = gene->rep;
 
@@ -101,8 +102,8 @@ static int update_sol(struct sol *gene, int u) {
 
   int c = r[u-1];
   for (struct node *n = g.l[u]->head; n; n = n->next) {
-    int k = (c == r[n->v-1]);
-    diff += (k - !k) * n->w;
+    int sign = (c == r[n->v-1]) ? 1 : -1;
+    diff += sign * n->w;
   }
 
   if (diff > 0) {
@@ -166,7 +167,7 @@ struct sol *next_sol(int val) {
     return NULL;
   }
   else {
-    return p.item[p.idx[max]];
+    return clone_sol(p.item[p.idx[max]]);
   }
 }
 
@@ -200,15 +201,15 @@ void init_GA(int pop_size) {
 
     if (profiled && (i <= save_size) && save_list[i-1]) {
       copy_sol(new_gene, save_list[i-1]);
-      validate_sol(new_gene);
+      eval_sol(new_gene);
     }
-    else if (!profiled && (i >= 7 * p.num / 8)) {
+    else if (i >= 7 * p.num / 8) {
       zero_sol(new_gene);
-      validate_sol(new_gene);
+      eval_sol(new_gene);
     }
     else {
       randomize_sol(new_gene);
-      validate_sol(new_gene);
+      eval_sol(new_gene);
     }
 
     p.item[i] = new_gene;
@@ -217,10 +218,14 @@ void init_GA(int pop_size) {
 
   sort_sol();
 
-  double fitness = FIT_MAX;
+  double fitness = profiled ? FIT_MAX_REAL : FIT_MAX_PROF;
+  int fit_diff = profiled
+               ? (FIT_MAX_REAL - FIT_MIN_REAL) / (p.num - 1)
+               : (FIT_MAX_PROF - FIT_MIN_PROF) / (p.num - 1);
+
   for (int i = 1; i <= p.num; i++) {
     p.fits[i] = p.fits[i-1] + fitness;
-    fitness -= (FIT_MAX - FIT_MIN) / (p.num - 1);
+    fitness -= fit_diff;
   }
 
   for (int i = 0; i <= p.len; i++) {
@@ -236,21 +241,21 @@ int repeat_GA(double elapsed) {
   int repeat;
 
   if (!profiled) {
-    repeat = (elapsed < PROF_TIME)
-           & (reset_count < PROF_COUNT)
-           & !converged(0, 2);
+    repeat =  (elapsed < UNIT_TIME * (reset_count + 1))
+           && (reset_count < PROF_COUNT)
+           && !converged(0, 7);
   }
   else {
-    repeat = (elapsed < TOTAL_TIME)
-           & !converged(0, 6)
-           & !converged(1, 7);
+    repeat =  (elapsed < TOTAL_TIME)
+           && (elapsed < UNIT_TIME * (reset_count + 1))
+           && !converged(0, 7);
   }
 
   p.gen++;
 
   if (!repeat) {
     reset_count++;
-    profiled |= (reset_count >= PROF_COUNT);
+    profiled = (reset_count >= PROF_COUNT);
   }
 
   return repeat;
@@ -319,7 +324,7 @@ void replace_GA(struct sol **gene, int num_replace) {
   }
 
   for (int j = 0; j < num_replace; j++) {
-    validate_sol(gene[j]);
+    eval_sol(gene[j]);
 #ifdef LOCAL_OPTIMIZE
     bit_flip(gene[j]);
 #endif
@@ -370,8 +375,6 @@ static void shuffle_order() {
     order[j] = tmp;
   }
 }
-
-static void sol_print(struct sol *sol, int i);
 
 static void bit_flip(struct sol *gene) {
   int improved;

@@ -6,16 +6,16 @@
 
 #define LOCAL_OPTIMIZE
 
-#define NUM_SOLUTIONS 256
+#define NUM_SOLUTIONS 128
 #define NUM_PROFILING 64
-#define NUM_SURVIVORS 32
+#define NUM_SURVIVORS 8
 #define NUM_OFFSPRING 1
 
 #define QNUM 8
 
-#define PROF_TIME 30.0
 #define PROF_COUNT 8
-#define TOTAL_TIME 175.0
+#define UNIT_TIME 10.0
+#define TOTAL_TIME 180.0
 
 #define throw(cond, msg) \
   do { \

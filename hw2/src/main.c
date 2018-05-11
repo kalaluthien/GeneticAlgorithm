@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "common.h"
 #include "timer.h"
@@ -52,8 +53,7 @@ static void initialize(int argc, char *argv[]) {
     out_fname = argv[2];
   }
 
-  throw(!(in = fopen(in_fname, "r")),
-        "faild to open input.\n");
+  throw(!(in = fopen(in_fname, "r")), "faild to open input.\n");
 
   parse_input(in, &g);
 }
@@ -61,15 +61,17 @@ static void initialize(int argc, char *argv[]) {
 static void run_ga() {
   struct sol *offspring[NUM_OFFSPRING];
 
-  while (1) {
+  while (read_timer(t_main, 1) < TOTAL_TIME - UNIT_TIME) {
     int pop_size = profiled ? NUM_SOLUTIONS : NUM_PROFILING;
     init_GA(pop_size);
 
     for (int i = 0; repeat_GA(read_timer(t_main, 1)); i++) {
+      /*
       if (i % 10 == 0) {
         gen_print();
-        //pop_print(16);
+        pop_print(16);
       }
+      */
 
       click_timer(t_main, 1);
 
@@ -91,45 +93,31 @@ static void save_result() {
   struct sol *gene = best_sol();
 
   /* save local optimal */
-  if (reset_count < PROF_COUNT) {
-    int uniq = 1;
-
-    for (int i = 0; i < save_size; i++) {
-      uniq &= gene->val != save_list[i]->val;
-    }
-
-    if (uniq) {
+  if (!profiled) {
+    if (save_size < NUM_SURVIVORS) {
       save_list[save_size++] = clone_sol(gene);
     }
   }
   else {
-    save_list[0] = gene;
+    for (int i = 0; i <= NUM_SURVIVORS; i++) {
+      if (save_list[i]) {
+        free(save_list[i]);
+      }
+      save_list[i] = NULL;
+    }
+
+    int min_val = gene->val;
+    save_list[0] = clone_sol(gene);
     save_size = 1;
 
-    while (save_size < NUM_SURVIVORS) {
-      save_list[save_size] = next_sol(save_list[save_size]);
-
-      if (save_list[save_size] == NULL)
+    for (save_size = 1; save_size < NUM_SURVIVORS; save_size++) {
+      if (!(save_list[save_size] = next_sol(min_val))) {
         break;
+      }
 
-      save_size++;
+      min_val = save_list[save_size]->val;
     }
   }
-    /*
-    int min = 0;
-    int max = 0;
-
-    for (int i = 1; i < save_size; i++) {
-      int val = save_list[i]->val;
-      min = (val < save_list[min]->val) ? i : min;
-      max = (val > save_list[max]->val) ? i : max;
-    }
-
-    if (save_list[max]->val < gene->val) {
-      free(save_list[min]);
-      save_list[min] = clone_sol(gene);
-    }
-    */
 
   /* save best solution */
   if (best_result == NULL) {
@@ -141,8 +129,7 @@ static void save_result() {
   }
 
   /* dump best solution */
-  throw(!(out = fopen(out_fname, "w")),
-        "faild to open output.\n");
+  throw(!(out = fopen(out_fname, "w")), "faild to open output.\n");
 
   for (int i = 0; i < g.num_vtx; i++) {
     if (best_result->rep[i]) {

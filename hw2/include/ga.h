@@ -3,10 +3,13 @@
 
 #include "graph.h"
 
-#define FIT_MAX (1.50 / NUM_SOLUTIONS)
-#define FIT_MIN (2.00 / NUM_SOLUTIONS - FIT_MAX)
+#define FIT_MAX_PROF (1.50 / NUM_PROFILING)
+#define FIT_MIN_PROF (2.00 / NUM_PROFILING - FIT_MAX_PROF)
 
-#define MUTATION_RATIO 0.10
+#define FIT_MAX_REAL (1.10 / NUM_SOLUTIONS)
+#define FIT_MIN_REAL (2.00 / NUM_SOLUTIONS - FIT_MAX_REAL)
+
+#define MUTATION_RATIO 0.03
 
 struct sol {
   int rep[MAX_VTX];
