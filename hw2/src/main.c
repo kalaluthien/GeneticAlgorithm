@@ -37,8 +37,6 @@ int main(int argc, char *argv[]) {
   run_ga();
   click_timer(t_main, 0);
 
-  print_stats();
-
   return 0;
 }
 
@@ -66,13 +64,6 @@ static void run_ga() {
     init_GA(pop_size);
 
     for (int i = 0; repeat_GA(read_timer(t_main, 1)); i++) {
-      /*
-      if (i % 10 == 0) {
-        gen_print();
-        pop_print(16);
-      }
-      */
-
       click_timer(t_main, 1);
 
       for (int j = 0; j < NUM_OFFSPRING; j++) {
@@ -92,7 +83,6 @@ static void run_ga() {
 static void save_result() {
   struct sol *gene = best_sol();
 
-  /* save local optimal */
   if (!profiled) {
     if (save_size < NUM_SURVIVORS) {
       save_list[save_size++] = clone_sol(gene);
@@ -119,7 +109,6 @@ static void save_result() {
     }
   }
 
-  /* save best solution */
   if (best_result == NULL) {
     best_result = clone_sol(gene);
   }
@@ -128,7 +117,6 @@ static void save_result() {
     best_result = clone_sol(gene);
   }
 
-  /* dump best solution */
   throw(!(out = fopen(out_fname, "w")), "faild to open output.\n");
 
   for (int i = 0; i < g.num_vtx; i++) {

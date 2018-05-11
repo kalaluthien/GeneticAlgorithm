@@ -1,5 +1,5 @@
 # GeneticAlgorithm
-Genetic algorithm for maxcut problem
+Genetic algorithm for maxcut problem made by kalaluthien
 
 ## Contents
 * HW1

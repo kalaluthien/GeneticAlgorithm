@@ -419,17 +419,18 @@ void gen_print() {
   char info[1000];
   int n = 0;
 
+  int Q0 = p.item[p.idx[0*p.num/QNUM+1]]->val;
+  int Q1 = p.item[p.idx[2*p.num/QNUM+1]]->val;
+  int Q2 = p.item[p.idx[4*p.num/QNUM+1]]->val;
+  int Q3 = p.item[p.idx[6*p.num/QNUM+1]]->val;
+
   for (int i = 1; i <= p.num; i++) {
     values[i-1] = p.item[p.idx[i]]->val;
   }
   
   for (int i = 0; i < QNUM; i++) {
-    int max = INT_MIN;
-    int blk = (p.num / QNUM);
-    for (int j = i * blk; j < (i+1) * blk; j++) {
-      max = (max < values[j]) ? values[j] : max;
-    }
-    n += sprintf(info + n, " %4d", max);
+    int qval = p.item[p.idx[i*p.num/QNUM+1]]->val;
+    n += sprintf(info + n, " %4d", qval);
   }
 
   printf("\r[%d %d]%+6d\t%s", profiled, reset_count, p.gen, info);
