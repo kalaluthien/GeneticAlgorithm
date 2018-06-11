@@ -50,7 +50,6 @@ struct sol *best_set(struct set *s);
 
 void insert_set(struct set *s, struct sol *e);
 void replace_set(struct set *s, struct sol *e, int i);
-void lengthen_set(struct set *s, int len);
 void sort_set(struct set *s);
 
 #endif

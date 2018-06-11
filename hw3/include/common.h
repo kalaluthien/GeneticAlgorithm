@@ -4,11 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_PHASE 1
-#define TIME_LIMIT 100.0
+#define NUM_PHASE 5
+#define TIME_LIMIT 500.0
 #define TIME_PER_PHASE (TIME_LIMIT / NUM_PHASE - 1.0)
 
-#define NUM_SOLUTION 128
+#define NUM_SOLUTION 64
 
 #define QNUM 8
 

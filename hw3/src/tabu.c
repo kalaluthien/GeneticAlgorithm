@@ -56,25 +56,6 @@ static void one_bit_flip(struct sol *e) {
   }
 }
 
-static void bst_bit_flip(struct sol *e) {
-  int j = 1;
-  int bst = gain(e, order[1]);
-
-  for (int i = 2; i <= s->len; i++) {
-    int g = gain(e, order[i]);
-
-    if (bst < g) {
-      bst = g;
-      j = i;
-    }
-  }
-
-  if (bst > 0) {
-    flip_sol(e, order[j], bst);
-    improved[0] = 1;
-  }
-}
-
 static void two_bit_flip(struct sol *e) {
   char *rep = e->r;
 
@@ -91,10 +72,10 @@ static void two_bit_flip(struct sol *e) {
 
       int gu = gain(e, u);
       int gv = gain(e, v);
-      int gw = ((rep[u-1] != rep[v-1]) * 4 - 2) * wp[j];
+      int gw = ((rep[u-1] != rep[v-1]) * 2 - 1) * wp[j];
 
-      if (gu + gv + gw > 0) {
-        flip_sol(e, u, gu);
+      if (gu + gv + 2 * gw > 0) {
+        flip_sol(e, u, gu + gw);
         flip_sol(e, v, gv + gw);
         improved[1] = 1;
       }
@@ -111,7 +92,6 @@ void tabu_search(struct sol *e) {
     improved[1] = 0;
 
     one_bit_flip(e);
-    //bst_bit_flip(e);
     two_bit_flip(e);
 
   } while (improved[0] || improved[1]);

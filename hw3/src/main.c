@@ -9,7 +9,6 @@
 /* global environment */
 struct graph g;
 struct set *s;
-struct set *s_inc;
 struct set *s_sav;
 double time_remain;
 

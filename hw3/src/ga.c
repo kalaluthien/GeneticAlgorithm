@@ -11,7 +11,6 @@
 /* global environment */
 extern struct graph g;
 extern struct set *s;
-extern struct set *s_inc;
 extern struct set *s_sav;
 extern double time_remain;
 
@@ -23,7 +22,7 @@ void init_GA() {
   srand(time(NULL));
 
   int size = NUM_SOLUTION;
-  int len = g.num_vtx / 4;
+  int len = g.num_vtx;
 
   s = create_set(size, len);
   init_set(s);
@@ -36,32 +35,11 @@ void done_GA() {
   s = NULL;
 }
 
-static int converged(int n, int m) {
-  double Qn = (double) quart_set(s, n)->v;
-  double Qm = (double) quart_set(s, m)->v;
-  return ((Qn-Qm)/Qn < EPS);
-}
-
 int repeat_GA(double elapsed) {
   int repeat_cond = (elapsed < time_remain)
                   & (elapsed < TIME_PER_PHASE);
 
-  int extend_cond = ((s->len < g.num_vtx) & converged(0, 5))
-                  | (elapsed > time_remain / 2)
-                  | (elapsed > TIME_PER_PHASE / 2);
-
-  if (repeat_cond && extend_cond) {
-    step_GA();
-  }
-
   return repeat_cond;
-}
-
-void step_GA() {
-  int len = s->len + g.num_vtx * INCREASE_RATIO;
-  len = (len < MAX_VTX) ? len : MAX_VTX;
-
-  lengthen_set(s, len);
 }
 
 static int select_GA();
@@ -122,7 +100,6 @@ void mutation_GA(struct sol *e) {
 void replace_GA(struct sol *e, int p1, int p2) {
   eval_sol(e, s->len);
   tabu_search(e);
-  //max_fm(e);
 
   struct sol *o1 = index_set(s, p1);
   struct sol *o2 = index_set(s, p2);

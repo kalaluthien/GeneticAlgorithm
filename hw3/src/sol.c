@@ -189,14 +189,6 @@ void replace_set(struct set *s, struct sol *e, int i) {
   free(o);
 }
 
-void lengthen_set(struct set *s, int len) {
-  s->len = len;
-
-  for (int i = 1; i <= s->num; i++) {
-    eval_sol(s->e[i], s->len);
-  }
-}
-
 void sort_set(struct set *s) {
   for (int i = s->num; i > 1; i--) {
     for (int j = 1; j < i; j++) {
