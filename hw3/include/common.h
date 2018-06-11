@@ -8,7 +8,7 @@
 #define TIME_LIMIT 500.0
 #define TIME_PER_PHASE (TIME_LIMIT / NUM_PHASE - 1.0)
 
-#define NUM_SOLUTION 128
+#define NUM_SOLUTION 64
 
 #define QNUM 8
 
