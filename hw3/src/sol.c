@@ -71,13 +71,13 @@ void norm_sol(struct sol *e) {
 }
 
 int eval_sol(struct sol *e, int len) {
-  int u, sum = 0;
+  int sum = 0;
   char *rep = e->r;
 
   if (rep[0] == 0)
     norm_sol(e);
 
-  for (u = 1; u <= len; u++) {
+  for (int u = 1; u <= len; u++) {
     if (rep[u-1] == 0) {
       for (struct node *n = g.l[u]->head; n; n = n->next) {
         if (n->v > len)
@@ -91,25 +91,9 @@ int eval_sol(struct sol *e, int len) {
   return e->v = sum;
 }
 
-int update_sol(struct sol *e, int u, int len) {
-  int diff = 0;
-  char *rep = e->r;
-
-  int c = rep[u-1];
-  for (struct node *n = g.l[u]->head; n; n = n->next) {
-    if (n->v > len)
-      break;
-
-    int sign = ((c == rep[n->v-1]) << 1) - 1;
-    diff += sign * n->w;
-  }
-
-  if (diff > 0) {
-    rep[u-1] ^= 1;
-    e->v += diff;
-  }
-
-  return diff;
+void flip_sol(struct sol *e, int u, int diff) {
+  e->r[u-1] ^= 1;
+  e->v += diff;
 }
 
 void print_sol(struct sol *e) {

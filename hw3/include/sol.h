@@ -20,7 +20,7 @@ void zero_sol(struct sol *e);
 void rand_sol(struct sol *e);
 void norm_sol(struct sol *e);
 int eval_sol(struct sol *e, int len);
-int update_sol(struct sol *e, int u, int len);
+void flip_sol(struct sol *e, int u, int diff);
 void print_sol(struct sol *e);
 
 ////////////////////////////////////////////////////////////

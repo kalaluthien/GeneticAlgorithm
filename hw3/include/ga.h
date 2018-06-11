@@ -4,16 +4,16 @@
 #include "graph.h"
 #include "sol.h"
 
-#define MUTATION_RATIO 0.02
+#define MUTATION_RATIO 0.03
 
 void init_GA();
 void done_GA();
 int repeat_GA(double elapsed);
 void step_GA();
 
-void crossover_GA(struct sol *e, int *p);
+void crossover_GA(struct sol *e, int *p1, int *p2);
 void mutation_GA(struct sol *e);
-void replace_GA(struct sol *e, int p);
+void replace_GA(struct sol *e, int p1, int p2);
 
 void print_gen();
 

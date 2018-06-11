@@ -65,23 +65,23 @@ static void init_phase() {
 }
 
 static void run_phase() {
-  int parent;
+  int p1, p2;
   struct sol *offspring;
 
   for (int i = 0; repeat_GA(read_timer(t_main, 1)); i++) {
-    if (i % 50 == 0) {
+    click_timer(t_main, 1);
+
+    if (i % 20 == 0) {
       print_gen();
     }
 
-    click_timer(t_main, 1);
-
     offspring = new_sol();
 
-    crossover_GA(offspring, &parent);
+    crossover_GA(offspring, &p1, &p2);
 
     mutation_GA(offspring);
 
-    replace_GA(offspring, parent);
+    replace_GA(offspring, p1, p2);
 
     click_timer(t_main, 1);
   }

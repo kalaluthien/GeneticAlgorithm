@@ -5,6 +5,8 @@
 #include "common.h"
 #include "sol.h"
 #include "ga.h"
+#include "tabu.h"
+#include "fm.h"
 
 /* global environment */
 extern struct graph g;
@@ -12,8 +14,9 @@ extern struct set *s;
 extern struct set *s_inc;
 extern struct set *s_sav;
 
+/* local environment */
 static int gen;
-static int order[MAX_VTX+1];
+static int fcnt;
 
 /* GA operation */
 void init_GA() {
@@ -24,10 +27,6 @@ void init_GA() {
 
   s = create_set(size, len);
   init_set(s);
-
-  for (int i = 0; i <= len; i++) {
-    order[i] = i;
-  }
 
   gen = 0;
 }
@@ -40,7 +39,7 @@ void done_GA() {
 static int converged(int n, int m);
 
 int repeat_GA(double elapsed) {
-  return (elapsed < TIME_PER_PHASE) && !converged(0, QNUM-1);
+  return (elapsed < TIME_PER_PHASE) && !converged(0, 7);
 }
 
 void step_GA() {
@@ -48,13 +47,13 @@ void step_GA() {
 
 static int select_GA();
 
-void crossover_GA(struct sol *e, int *p) {
-  int p1 = select_GA();
-  int p2 = select_GA();
+void crossover_GA(struct sol *e, int *p1, int *p2) {
+  *p1 = select_GA();
+  *p2 = select_GA();
 
   char *r0 = e->r;
-  char *r1 = index_set(s, p1)->r;
-  char *r2 = index_set(s, p2)->r;
+  char *r1 = index_set(s, *p1)->r;
+  char *r2 = index_set(s, *p2)->r;
 
   int q = s->len / 8;
   int r = s->len % 8;
@@ -73,8 +72,6 @@ void crossover_GA(struct sol *e, int *p) {
   for (int i = 0; i < r; i++) {
     r0[8*q+i] = (rand() & 1) ? r1[8*q+i] : r2[8*q+i];
   }
-
-  *p = (index_set(s, p1)->v < index_set(s, p2)->v) ? p2 : p1;
 }
 
 static int select_GA() {
@@ -103,21 +100,28 @@ void mutation_GA(struct sol *e) {
   }
 }
 
-static void bit_flip(struct sol *e);
-
-void replace_GA(struct sol *e, int p) {
+void replace_GA(struct sol *e, int p1, int p2) {
   eval_sol(e, s->len);
-  bit_flip(e);
+  tabu_search(e);
 
-  if (p > 0) {
-    struct sol *o = index_set(s, p);
+  struct sol *o1 = index_set(s, p1);
+  struct sol *o2 = index_set(s, p2);
 
-    if (e->v > o->v) {
-      replace_set(s, e, p);
-    }
+  if (o1->v > o2->v) {
+    if (e->v > o1->v)
+      replace_set(s, e, p1);
+    else if (e->v > o2->v)
+      replace_set(s, e, p2);
+    else
+      replace_set(s, e, s->num);
   }
   else {
-    replace_set(s, e, s->num);
+    if (e->v > o2->v)
+      replace_set(s, e, p2);
+    else if (e->v > o1->v)
+      replace_set(s, e, p1);
+    else
+      replace_set(s, e, s->num);
   }
 
   sort_set(s);
@@ -126,30 +130,6 @@ void replace_GA(struct sol *e, int p) {
 }
 
 /* helper functions */
-static void shuffle_order() {
-  for (int i = 1; i < s->len; i++) {
-    int j = rand() % (s->len - i + 1) + i;
-    int tmp = order[i];
-    order[i] = order[j];
-    order[j] = tmp;
-  }
-}
-
-static void bit_flip(struct sol *e) {
-  int improved;
-
-  shuffle_order();
-
-  do {
-    improved = 0;
-    for (int i = 1; i <= s->len; i++) {
-      if (update_sol(e, order[i], s->len) > 0) {
-        improved = 1;
-      }
-    }
-  } while (improved);
-}
-
 static int converged(int n, int m) {
   int v_n = quart_set(s, n)->v;
   int v_m = quart_set(s, m)->v;

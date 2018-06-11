@@ -5,11 +5,11 @@ INCLUDE_DIR = $(ROOT_DIR)/include
 
 CC = gcc
 
-CFLAGS = -g -std=c99 -Wall -I$(INCLUDE_DIR)
-LDFLAGS =
+CFLAGS = -g -pg -std=c99 -Wall -I$(INCLUDE_DIR)
+LDFLAGS = -pg
 OPTS = -O2
 
-SRCS = main.c graph.c sol.c ga.c timer.c
+SRCS = main.c graph.c sol.c ga.c tabu.c fm.c timer.c
 OBJS = $(SRCS:%.c=%.o)
 
 all: $(OBJS)
