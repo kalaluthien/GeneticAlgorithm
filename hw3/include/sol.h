@@ -27,7 +27,7 @@ void print_sol(struct sol *e);
 // Set
 ////////////////////////////////////////////////////////////
 
-#define FIT_MAX (1.50 / NUM_SOLUTION)
+#define FIT_MAX (1.20 / NUM_SOLUTION)
 #define FIT_MIN (2.00 / NUM_SOLUTION - FIT_MAX)
 
 struct set {
@@ -45,14 +45,11 @@ void init_set(struct set *s);
 void delete_set(struct set *s);
 
 struct sol *best_set(struct set *s);
-struct sol *next_set(struct set *s, int v);
-
 #define index_set(s, i) ((s)->e[(s)->idx[i]])
 #define quart_set(s, q) ((s)->e[(s)->idx[(q)*s->num/QNUM+1]])
 
 void insert_set(struct set *s, struct sol *e);
 void replace_set(struct set *s, struct sol *e, int i);
-void merge_set(struct set *dst, struct set *src);
 void lengthen_set(struct set *s, int len);
 void sort_set(struct set *s);
 

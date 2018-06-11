@@ -5,9 +5,8 @@ extern struct graph g;
 extern struct set *s;
 
 /* local environment */
-static int improved;
+static int improved[2];
 static int order[MAX_VTX+1];
-//static int delta[MAX_VTX+1];
 
 static void init_order() {
   for (int i = 1; i <= s->len; i++) {
@@ -25,130 +24,95 @@ static void shuffle_order() {
 }
 
 static int gain(struct sol *e, int u) {
-  int gain = 0;
+  int *vp = g.v[u];
+  int *wp = g.w[u];
+  int size = g.size[u];
+
   char *rep = e->r;
   char c = rep[u-1];
 
-  for (struct node *n = g.l[u]->head; n; n = n->next) {
-    int v = n->v;
+  int gain = 0;
+
+  for (int i = 0; i < size; i++) {
+    int v = vp[i];
 
     if (v > s->len)
-      break;
+      continue;
 
-    int sign = (c == rep[v-1]) * 2 - 1;
-    gain += sign * n->w;
+    gain += ((c == rep[v-1]) * 2 - 1) * wp[i];
   }
 
   return gain;
 }
 
-static void bit_flip_order(struct sol *e) {
+static void one_bit_flip(struct sol *e) {
   for (int i = 1; i <= s->len; i++) {
     int gi = gain(e, order[i]);
 
     if (gi > 0) {
       flip_sol(e, order[i], gi);
-      improved = 1;
+      improved[0] = 1;
     }
   }
 }
 
-static void bit_swap_order(struct sol *e) {
+static void bst_bit_flip(struct sol *e) {
+  int j = 1;
+  int bst = gain(e, order[1]);
+
+  for (int i = 2; i <= s->len; i++) {
+    int g = gain(e, order[i]);
+
+    if (bst < g) {
+      bst = g;
+      j = i;
+    }
+  }
+
+  if (bst > 0) {
+    flip_sol(e, order[j], bst);
+    improved[0] = 1;
+  }
+}
+
+static void two_bit_flip(struct sol *e) {
   char *rep = e->r;
 
-  for (int i = 1; i < s->len; i++) {
-    for (struct node *n = g.l[order[i]]->head; n; n = n->next) {
-      int j = n->v;
+  for (int i = 1; i <= s->len; i++) {
+    int u = order[i];
+    int *vp = g.v[u];
+    int *wp = g.w[u];
 
-      if (j > s->len)
-        break;
+    for (int j = 0; j < g.size[u]; j++) {
+      int v = vp[j];
 
-      int gi = gain(e, order[i]);
-      int gj = gain(e, j);
+      if (v < u || v > s->len)
+        continue;
 
-      int sign = (rep[order[i]-1] != rep[j-1]) * 4 - 2;
-      int gd = sign * n->w;
+      int gu = gain(e, u);
+      int gv = gain(e, v);
+      int gw = ((rep[u-1] != rep[v-1]) * 4 - 2) * wp[j];
 
-      if (gi + gj + gd > 0) {
-        flip_sol(e, order[i], gi);
-        flip_sol(e, j, gj + gd);
-
-        improved = 1;
+      if (gu + gv + gw > 0) {
+        flip_sol(e, u, gu);
+        flip_sol(e, v, gv + gw);
+        improved[1] = 1;
       }
     }
   }
 }
-/*
-static void init_delta(struct sol *e) {
-  int gain;
-  char *rep = e->r;
-
-  for (int u = 1; u <= s->len; u++) {
-    int c = rep[u-1];
-    gain = 0;
-
-    for (struct node *n = g.l[u]->head; n; n = n->next) {
-      int v = n->v;
-
-      if (v > s->len)
-        break;
-
-      int sign = (c == rep[v-1]) * 2 - 1;
-      gain += sign * n->w;
-    }
-
-    delta[u] = gain;
-  }
-}
-
-static void update_delta(struct sol *e, int u) {
-  char *rep = e->r;
-  char c = rep[u-1];
-
-  for (struct node *n = g.l[u]->head; n; n = n->next) {
-    int v = n->v;
-
-    if (v > s->len) {
-      break;
-    }
-    else if (v == u) {
-      delta[v] = -delta[v];
-    }
-    else {
-      int sign = (c != rep[v-1]) * 4 - 2;
-      delta[v] += sign * n->w;
-    }
-  }
-}
-
-static void bit_flip_best(struct sol *e) {
-  int u = 1;
-
-  init_delta(e);
-
-  for (int i = 2; i <= s->len; i++) {
-    u = (delta[u] < delta[i]) ? i : u;
-  }
-
-  if (delta[u] > 0) {
-    flip_sol(e, u, delta[u]);
-
-    update_delta(e, u);
-
-    improved = 1;
-  }
-}
-*/
 
 void tabu_search(struct sol *e) {
   init_order();
   shuffle_order();
 
   do {
-    improved = 0;
+    improved[0] = 0;
+    improved[1] = 0;
 
-    bit_flip_order(e);
-    bit_swap_order(e);
+    one_bit_flip(e);
+    //bst_bit_flip(e);
+    two_bit_flip(e);
 
-  } while (improved);
+  } while (improved[0] || improved[1]);
 }

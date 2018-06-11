@@ -47,6 +47,8 @@ void rand_sol(struct sol *e) {
   for (int i = 0; i < r; i++) {
     rep[8*q+i] = rand() & 1;
   }
+
+  rep[1] = 1;
 }
 
 void norm_sol(struct sol *e) {
@@ -71,19 +73,26 @@ void norm_sol(struct sol *e) {
 }
 
 int eval_sol(struct sol *e, int len) {
-  int sum = 0;
   char *rep = e->r;
 
   if (rep[0] == 0)
     norm_sol(e);
 
-  for (int u = 1; u <= len; u++) {
-    if (rep[u-1] == 0) {
-      for (struct node *n = g.l[u]->head; n; n = n->next) {
-        if (n->v > len)
-          break;
+  int sum = 0;
 
-        sum += (rep[n->v-1] == 1) * n->w;
+  for (int u = 1; u <= len; u++) {
+    int *vp = g.v[u];
+    int *wp = g.w[u];
+    int size = g.size[u];
+
+    if (rep[u-1] == 0) {
+      for (int i = 0; i <size; i++) {
+        int v = vp[i];
+
+        if (v > len)
+          continue;
+
+        sum += (rep[v-1] == 1) * wp[i];
       }
     }
   }
@@ -119,6 +128,9 @@ static void fit_set(struct set *s) {
 }
 
 struct set *create_set(int size, int len) {
+  size = (size < 1) ? 1 : size;
+  len = (len < 1) ? 1 : len;
+
   struct set *s = (struct set *) malloc(sizeof(struct set));
 
   s->e = (struct sol **) malloc(sizeof(struct sol *) * (size+1));
@@ -163,28 +175,6 @@ struct sol *best_set(struct set *s) {
   return index_set(s, 1);
 }
 
-struct sol *next_set(struct set *s, int v) {
-  int min = 1, max = s->num, mid;
-
-  while (min < max) {
-    mid = (min + max) / 2;
-
-    if (index_set(s, mid)->v >= v) {
-      min = mid + 1;
-    }
-    else {
-      max = mid;
-    }
-  }
-
-  if (min > max) {
-    return NULL;
-  }
-  else {
-    return clone_sol(index_set(s, max));
-  }
-}
-
 void insert_set(struct set *s, struct sol *e) {
   if (s->num < s->size) {
     s->num++;
@@ -199,26 +189,6 @@ void replace_set(struct set *s, struct sol *e, int i) {
   free(o);
 }
 
-static void expand_set(struct set *s, int inc);
-
-void merge_set(struct set *dst, struct set *src) {
-  expand_set(dst, src->num);
-
-  for (int i = 1; i <= src->num; i++) {
-    insert_set(dst, src->e[i]);
-  }
-
-  sort_set(dst);
-  fit_set(dst);
-}
-
-static void expand_set(struct set *s, int inc) {
-  s->size += inc;
-  s->e = (struct sol **) realloc(s->e, sizeof(struct sol *) * (s->size+1));
-  s->idx = (int *) realloc(s->idx, sizeof(int) * (s->size+1));
-  s->fit = (double *) realloc(s->fit, sizeof(double) * (s->size+1));
-}
-
 void lengthen_set(struct set *s, int len) {
   s->len = len;
 
@@ -226,30 +196,7 @@ void lengthen_set(struct set *s, int len) {
     eval_sol(s->e[i], s->len);
   }
 }
-/*
-static void sort_set_internal(struct set *s, int p, int q) {
-  int x = index_set(s, p)->v;
-  int i = p-1;
-  int j = q+1;
 
-  while (i < j) {
-    while (index_set(s, i)->v <= x) // FIXME: segfault
-      i++;
-
-    while (index_set(s, j)->v >= x)
-      j--;
-
-    if (i < j) {
-      int t = s->idx[i];
-      s->idx[i] = s->idx[j];
-      s->idx[j] = t;
-    }
-  }
-
-  sort_set_internal(s, p, j);
-  sort_set_internal(s, j+1, q);
-}
-*/
 void sort_set(struct set *s) {
   for (int i = s->num; i > 1; i--) {
     for (int j = 1; j < i; j++) {
@@ -260,5 +207,4 @@ void sort_set(struct set *s) {
       }
     }
   }
-  //sort_set_internal(s, 1, s->num);
 }

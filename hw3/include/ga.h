@@ -5,6 +5,8 @@
 #include "sol.h"
 
 #define MUTATION_RATIO 0.03
+#define INCREASE_RATIO 0.01
+#define EPS 0.01
 
 void init_GA();
 void done_GA();

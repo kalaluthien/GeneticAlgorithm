@@ -11,8 +11,10 @@ struct graph g;
 struct set *s;
 struct set *s_inc;
 struct set *s_sav;
+double time_remain;
 
 static struct timer *t_main;
+
 static FILE *in;
 static FILE *out;
 static char *in_fname = "maxcut.in";
@@ -40,6 +42,8 @@ int main(int argc, char *argv[]) {
   in = fopen(in_fname, "r");
   throw(in == NULL, "faild to open input.");
 
+  time_remain = TIME_PER_PHASE * NUM_PHASE;
+
   create_graph(&g, in);
   s_sav = create_set(NUM_PHASE, g.num_vtx);
 
@@ -53,7 +57,7 @@ int main(int argc, char *argv[]) {
 
   click_timer(t_main, 0);
 
-  print_stats(); // FIXME
+  print_stats();
 
   return 0;
 }
@@ -71,9 +75,7 @@ static void run_phase() {
   for (int i = 0; repeat_GA(read_timer(t_main, 1)); i++) {
     click_timer(t_main, 1);
 
-    if (i % 20 == 0) {
-      print_gen();
-    }
+    print_gen();
 
     offspring = new_sol();
 
@@ -92,6 +94,8 @@ static void save_file(struct sol *e);
 static void done_phase() {
   struct sol *result = best_set(s);
   throw(result == NULL, "faild to get best solution.");
+
+  time_remain -= read_timer(t_main, 1);
 
   insert_set(s_sav, clone_sol(result));
 
